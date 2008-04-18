@@ -1,4 +1,3 @@
-# $Id: PKGBUILD,v 1.40 2008/03/18 10:20:38 tpowa Exp $
 # Maintainer: judd <jvinet@zeroflux.org>
 
 pkgname=grub
