@@ -20,7 +20,7 @@ pkgdesc='GNU GRand Unified Bootloader (2)'
 epoch=2
 _tag='bb59f566e1e5c387dbfd342bb3767f761422c744' # git rev-parse grub-${_pkgver}
 _pkgver=2.12rc1
-_unifont_ver='15.0.06'
+_unifont_ver='15.1.01'
 pkgver=${_pkgver/-/}
 pkgrel=1
 url='https://www.gnu.org/software/grub/'
@@ -68,7 +68,7 @@ source=("git+https://git.savannah.gnu.org/git/grub.git#tag=${_tag}?signed"
 
 sha256sums=('SKIP'
             'SKIP'
-            '93cb54fa103a00e25cd3e16550b4b4eb13cbd098e515679ade3ae82cd0739f29'
+            '9019b5ecced52a2ca46e81316c1cbaca1b47d8871d9ff5e413c0686e0e47a11d'
             'SKIP'
             '5dee6628c48eef79812bb9e86ee772068d85e7fcebbd2b2b8d1e19d24eda9dab'
             '8488aec30a93e8fe66c23ef8c23aefda39c38389530e9e73ba3fbcc8315d244d'
