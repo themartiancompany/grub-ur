@@ -1,6 +1,6 @@
 # Maintainer : Christian Hesse <mail@eworm.de>
-# Maintainer : Ronald van Haren <ronald.archlinux.org>
-# Contributor: Tobias Powalowski <tpowa@archlinux.org>
+# Maintainer : Tobias Powalowski <tpowa@archlinux.org>
+# Contributor: Ronald van Haren <ronald.archlinux.org>
 # Contributor: Keshav Amburay <(the ddoott ridikulus ddoott rat) (aatt) (gemmaeiil) (ddoott) (ccoomm)>
 
 ## "1" to enable IA32-EFI build in Arch x86_64, "0" to disable
