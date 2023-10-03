@@ -22,7 +22,7 @@ _tag='bb59f566e1e5c387dbfd342bb3767f761422c744' # git rev-parse grub-${_pkgver}
 _pkgver=2.12rc1
 _unifont_ver='15.1.01'
 pkgver=${_pkgver/-/}
-pkgrel=1
+pkgrel=2
 url='https://www.gnu.org/software/grub/'
 arch=('x86_64')
 license=('GPL3')
@@ -63,6 +63,7 @@ source=("git+https://git.savannah.gnu.org/git/grub.git#tag=${_tag}?signed"
         '0001-00_header-add-GRUB_COLOR_-variables.patch'
         '0002-10_linux-detect-archlinux-initramfs.patch'
         '0003-support-dropins-for-default-configuration.patch'
+        '0004-ntfs-module-security.patch'
         'grub.default'
         'sbat.csv')
 
@@ -73,6 +74,7 @@ sha256sums=('SKIP'
             '5dee6628c48eef79812bb9e86ee772068d85e7fcebbd2b2b8d1e19d24eda9dab'
             '8488aec30a93e8fe66c23ef8c23aefda39c38389530e9e73ba3fbcc8315d244d'
             'b5d9fcd62ffb3c3950fdeb7089ec2dc2294ac52e9861980ad90a437dedbd3d47'
+            '4bdd5ceb13dbd4c41fde24163f16a0ba05447d821e74d938a0b9e5fce0431140'
             '7df3f5cb5df7d2dfb17f4c9b5c5dedc9519ddce6f8d2c6cd43d1be17cecb65cb'
             '98b23d41e223bdc0a6e20bdcb3aa77e642f29b64081b1fd2f575314172fc89df')
 
@@ -131,6 +133,10 @@ prepare() {
 
 	echo "Patch to support dropins for default configuration..."
 	patch -Np1 -i "${srcdir}/0003-support-dropins-for-default-configuration.patch"
+
+	echo "Patch to fix ntfs module security vulnerabilities"
+	patch -Np1 -i"${srcdir}/0004-ntfs-module-security.patch"
+
 	echo "Fix DejaVuSans.ttf location so that grub-mkfont can create *.pf2 files for starfield theme..."
 	sed 's|/usr/share/fonts/dejavu|/usr/share/fonts/dejavu /usr/share/fonts/TTF|g' -i "configure.ac"
 
