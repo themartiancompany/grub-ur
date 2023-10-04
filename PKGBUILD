@@ -20,9 +20,9 @@ pkgdesc='GNU GRand Unified Bootloader (2)'
 epoch=2
 _tag='bb59f566e1e5c387dbfd342bb3767f761422c744' # git rev-parse grub-${_pkgver}
 _pkgver=2.12rc1
-_unifont_ver='15.1.01'
+_unifont_ver='15.1.02'
 pkgver=${_pkgver/-/}
-pkgrel=2
+pkgrel=3
 url='https://www.gnu.org/software/grub/'
 arch=('x86_64')
 license=('GPL3')
@@ -69,7 +69,7 @@ source=("git+https://git.savannah.gnu.org/git/grub.git#tag=${_tag}?signed"
 
 sha256sums=('SKIP'
             'SKIP'
-            '9019b5ecced52a2ca46e81316c1cbaca1b47d8871d9ff5e413c0686e0e47a11d'
+            '912834ab9cd372f300541894615f910af4db82477c91b236674057eadfc76429'
             'SKIP'
             '5dee6628c48eef79812bb9e86ee772068d85e7fcebbd2b2b8d1e19d24eda9dab'
             '8488aec30a93e8fe66c23ef8c23aefda39c38389530e9e73ba3fbcc8315d244d'
@@ -135,7 +135,7 @@ prepare() {
 	patch -Np1 -i "${srcdir}/0003-support-dropins-for-default-configuration.patch"
 
 	echo "Patch to fix ntfs module security vulnerabilities"
-	patch -Np1 -i"${srcdir}/0004-ntfs-module-security.patch"
+	patch -Np1 -i "${srcdir}/0004-ntfs-module-security.patch"
 
 	echo "Fix DejaVuSans.ttf location so that grub-mkfont can create *.pf2 files for starfield theme..."
 	sed 's|/usr/share/fonts/dejavu|/usr/share/fonts/dejavu /usr/share/fonts/TTF|g' -i "configure.ac"
