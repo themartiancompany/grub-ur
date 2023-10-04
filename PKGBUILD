@@ -25,7 +25,7 @@ pkgver=${_pkgver/-/}
 pkgrel=3
 url='https://www.gnu.org/software/grub/'
 arch=('x86_64')
-license=('GPL3-or-later')
+license=('GPL-3.0-or-later')
 backup=('etc/default/grub'
         'etc/grub.d/40_custom')
 install="${pkgname}.install"
