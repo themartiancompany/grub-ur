@@ -22,6 +22,8 @@ _GRUB_EMU_BUILD="0"
   _EMU_ARCH='x86_64'
 [[ "${CARCH}" == 'i686' ]] && \
   _EMU_ARCH='i386'
+[[ "${CARCH}" == 'arm' ]] && \
+  _EMU_ARCH='arm-linux-gnueabihf'
 
 pkgname='grub'
 pkgdesc='GNU GRand Unified Bootloader (2)'
@@ -31,7 +33,7 @@ _pkgver=2.12
 _unifont_ver='15.1.04'
 pkgver=${_pkgver/-/}
 pkgrel=1
-url='https://www.gnu.org/software/grub/'
+url="https://www.gnu.org/software/${pkgname}"
 arch=(
   'x86_64'
   'arm'
@@ -44,7 +46,7 @@ license=(
   'GPL-3.0-or-later'
 )
 backup=(
-  'etc/default/grub'
+  "etc/default/${pkgname}"
   'etc/grub.d/40_custom'
 )
 install="${pkgname}.install"
@@ -252,105 +254,139 @@ prepare() {
     's|GNU/Linux|Linux|' \
     -i \
     "util/grub.d/10_linux.in"
-	echo "Pull in latest language files..."
-	./linguas.sh
-
-	echo "Avoid problem with unifont during compile of grub..."
-	# http://savannah.gnu.org/bugs/?40330 and https://bugs.archlinux.org/task/37847
-	gzip -cd "${srcdir}/unifont-${_unifont_ver}.bdf.gz" > "unifont.bdf"
-
-	echo "Run bootstrap..."
-	./bootstrap \
-		--gnulib-srcdir="${srcdir}/gnulib/" \
-		--no-git
-
-	echo "Make translations reproducible..."
-	sed -i '1i /^PO-Revision-Date:/ d' po/*.sed
+  echo \
+    "Pull in latest language files..."
+  ./linguas.sh
+  
+  echo \
+    "Avoid problem with unifont during compile of grub..."
+  # http://savannah.gnu.org/bugs/?40330 and https://bugs.archlinux.org/task/37847
+  gzip \
+    -cd \
+      "${srcdir}/unifont-${_unifont_ver}.bdf.gz" > \
+    "unifont.bdf"
+  
+  echo \
+    "Run bootstrap..."
+  ./bootstrap \
+    --gnulib-srcdir="${srcdir}/gnulib/" \
+    --no-git
+  
+  echo \
+    "Make translations reproducible..."
+  sed \
+    -i \
+      '1i /^PO-Revision-Date:/ d' \
+    po/*.sed
 }
 
 _build_grub-common_and_bios() {
-	echo "Set ARCH dependent variables for bios build..."
-	if [[ "${CARCH}" == 'x86_64' ]]; then
-		_EFIEMU="--enable-efiemu"
-	else
-		_EFIEMU="--disable-efiemu"
-	fi
-
-	echo "Copy the source for building the bios part..."
-	cp -r "${srcdir}/grub/" "${srcdir}/grub-bios/"
-	cd "${srcdir}/grub-bios/"
-
-	echo "Unset all compiler FLAGS for bios build..."
-	unset CFLAGS
-	unset CPPFLAGS
-	unset CXXFLAGS
-	unset LDFLAGS
-	unset MAKEFLAGS
-
-	echo "Run ./configure for bios build..."
-	./configure \
-		--with-platform="pc" \
-		--target="i386" \
-		"${_EFIEMU}" \
-		--enable-boot-time \
-		"${_configure_options[@]}"
-
-	if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
-		echo "Make info pages reproducible..."
-		touch -d "@${SOURCE_DATE_EPOCH}" $(find -name '*.texi')
-	fi
-
-	echo "Run make for bios build..."
-	make
+  echo \
+    "Set ARCH dependent variables for bios build..."
+  if [[ "${CARCH}" == 'x86_64' ]]; then
+    _EFIEMU="--enable-efiemu"
+  else
+    _EFIEMU="--disable-efiemu"
+  fi
+  
+  echo \
+    "Copy the source for building the bios part..."
+  cp \
+    -r \
+    "${srcdir}/grub/" \
+    "${srcdir}/grub-bios/"
+  cd \
+    "${srcdir}/grub-bios/"
+  
+  echo \
+    "Unset all compiler FLAGS for bios build..."
+  unset \
+    CFLAGS \
+    CPPFLAGS \
+    CXXFLAGS \
+    LDFLAGS \
+    MAKEFLAGS
+  
+  echo \
+    "Run ./configure for bios build..."
+  ./configure \
+    --with-platform="pc" \
+    --target="i386" \
+    "${_EFIEMU}" \
+    --enable-boot-time \
+    "${_configure_options[@]}"
+  
+  if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
+    echo \
+      "Make info pages reproducible..."
+  touch \
+    -d \
+      "@${SOURCE_DATE_EPOCH}" \
+      $(find \
+          -name \
+            '*.texi')
+  fi
+  
+  echo \
+    "Run make for bios build..."
+  make
 }
 
 _build_grub-efi() {
-	echo "Copy the source for building the ${_EFI_ARCH} efi part..."
-	cp -r "${srcdir}/grub/" "${srcdir}/grub-efi-${_EFI_ARCH}/"
-	cd "${srcdir}/grub-efi-${_EFI_ARCH}/"
-
-	echo "Unset all compiler FLAGS for ${_EFI_ARCH} efi build..."
-	unset CFLAGS
-	unset CPPFLAGS
-	unset CXXFLAGS
-	unset LDFLAGS
-	unset MAKEFLAGS
-
-	echo "Run ./configure for ${_EFI_ARCH} efi build..."
-	./configure \
-		--with-platform="efi" \
-		--target="${_EFI_ARCH}" \
-		--disable-efiemu \
-		--enable-boot-time \
-		"${_configure_options[@]}"
-
-	echo "Run make for ${_EFI_ARCH} efi build..."
-	make
+  echo \
+    "Copy the source for building the ${_EFI_ARCH} efi part..."
+  cp \
+    -r \
+      "${srcdir}/grub/" \
+      "${srcdir}/grub-efi-${_EFI_ARCH}/"
+  cd \
+    "${srcdir}/grub-efi-${_EFI_ARCH}/"
+  
+  echo \
+    "Unset all compiler FLAGS for ${_EFI_ARCH} efi build..."
+  unset \
+    CFLAGS \
+    CPPFLAGS \
+    CXXFLAGS \
+    LDFLAGS \
+    MAKEFLAGS
+  
+  echo \
+    "Run ./configure for ${_EFI_ARCH} efi build..."
+  ./configure \
+    --with-platform="efi" \
+    --target="${_EFI_ARCH}" \
+    --disable-efiemu \
+    --enable-boot-time \
+    "${_configure_options[@]}"
+  echo \
+    "Run make for ${_EFI_ARCH} efi build..."
+  make
 }
 
 _build_grub-emu() {
-	echo "Copy the source for building the emu part..."
-	cp -r "${srcdir}/grub/" "${srcdir}/grub-emu/"
-	cd "${srcdir}/grub-emu/"
-
-	echo "Unset all compiler FLAGS for emu build..."
-	unset CFLAGS
-	unset CPPFLAGS
-	unset CXXFLAGS
-	unset LDFLAGS
-	unset MAKEFLAGS
-
-	echo "Run ./configure for emu build..."
-	./configure \
-		--with-platform="emu" \
-		--target="${_EMU_ARCH}" \
-		--enable-grub-emu-usb=no \
-		--enable-grub-emu-sdl=no \
-		--disable-grub-emu-pci \
-		"${_configure_options[@]}"
-
-	echo "Run make for emu build..."
-	make
+  echo "Copy the source for building the emu part..."
+  cp -r "${srcdir}/grub/" "${srcdir}/grub-emu/"
+  cd "${srcdir}/grub-emu/"
+  
+  echo "Unset all compiler FLAGS for emu build..."
+  unset CFLAGS
+  unset CPPFLAGS
+  unset CXXFLAGS
+  unset LDFLAGS
+  unset MAKEFLAGS
+  
+  echo "Run ./configure for emu build..."
+  ./configure \
+  	--with-platform="emu" \
+  	--target="${_EMU_ARCH}" \
+  	--enable-grub-emu-usb=no \
+  	--enable-grub-emu-sdl=no \
+  	--disable-grub-emu-pci \
+  	"${_configure_options[@]}"
+  
+  echo "Run make for emu build..."
+  make
 }
 
 build() {
