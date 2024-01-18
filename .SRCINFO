@@ -52,8 +52,8 @@ pkgbase = grub
 	options = !makeflags
 	backup = etc/default/grub
 	backup = etc/grub.d/40_custom
-	source = git+https://git.savannah.gnu.org/git/grub.git#tag=03e6ea18f6f834f177cad017279bedbb0a3de594?signed
-	source = git+https://git.savannah.gnu.org/git/gnulib.git
+	source = git+file:///data/data/com.termux/files/home/grub#tag=03e6ea18f6f834f177cad017279bedbb0a3de594?signed
+	source = git+file:///data/data/com.termux/files/home/gnulib
 	source = https://ftp.gnu.org/gnu/unifont/unifont-15.1.04/unifont-15.1.04.bdf.gz
 	source = https://ftp.gnu.org/gnu/unifont/unifont-15.1.04/unifont-15.1.04.bdf.gz.sig
 	source = 0001-00_header-add-GRUB_COLOR_-variables.patch

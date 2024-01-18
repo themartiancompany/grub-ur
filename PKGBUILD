@@ -120,14 +120,20 @@ validpgpkeys=(
   # Paul Hardy <unifoundry@unifoundry.com>
   '95D2E9AB8740D8046387FD151A09227B1F435A33'
 )
+_http="https://git.savannah.gnu.org/git"
+_url="${_http}/${pkgname}"
+_local="file://${HOME}/${pkgname}"
+_local_gnulib="file://${HOME}/gnulib"
 source=(
-  "git+https://git.savannah.gnu.org/git/${pkgname}.git#tag=${_tag}?signed"
-  'git+https://git.savannah.gnu.org/git/gnulib.git'
+  # "git+${_url}.git#tag=${_tag}?signed"
+  "git+${_local}#tag=${_tag}?signed"
+  # "git+${_http}/gnulib.git"
+  "git+${_local_gnulib}"
   "https://ftp.gnu.org/gnu/unifont/unifont-${_unifont_ver}/unifont-${_unifont_ver}.bdf.gz"{,.sig}
   '0001-00_header-add-GRUB_COLOR_-variables.patch'
   '0002-10_linux-detect-archlinux-initramfs.patch'
   '0003-support-dropins-for-default-configuration.patch'
-  'grub.default'
+  "${pkgname}.default"
   'sbat.csv'
 )
 
