@@ -6,6 +6,11 @@ pkgbase = grub
 	url = https://www.gnu.org/software/grub/
 	install = grub.install
 	arch = x86_64
+	arch = arm
+	arch = armv7h
+	arch = aarch64
+	arch = i686
+	arch = powerpc
 	license = GPL-3.0-or-later
 	makedepends = git
 	makedepends = rsync
@@ -31,19 +36,19 @@ pkgbase = grub
 	optdepends = libisoburn: Provides xorriso for generating grub rescue iso using grub-mkrescue
 	optdepends = os-prober: To detect other OSes when generating grub.cfg in BIOS systems
 	optdepends = mtools: For grub-mkrescue FAT FS support
-	provides = grub-common
-	provides = grub-bios
-	provides = grub-emu
-	provides = grub-efi-x86_64
+	provides = grub-common=2.12
+	provides = grub-bios=2.12
+	provides = grub-emu=2.12
+	provides = grub-efi-
 	conflicts = grub-common
 	conflicts = grub-bios
 	conflicts = grub-emu
-	conflicts = grub-efi-x86_64
+	conflicts = grub-efi-
 	conflicts = grub-legacy
 	replaces = grub-common
 	replaces = grub-bios
 	replaces = grub-emu
-	replaces = grub-efi-x86_64
+	replaces = grub-efi-
 	options = !makeflags
 	backup = etc/default/grub
 	backup = etc/grub.d/40_custom
