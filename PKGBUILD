@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0
+#
 # Maintainer : Christian Hesse <mail@eworm.de>
 # Maintainer : Tobias Powalowski <tpowa@archlinux.org>
 # Contributor: Ronald van Haren <ronald.archlinux.org>
@@ -425,3 +427,5 @@ package() {
 	echo "Package grub bios stuff..."
 	_package_grub-common_and_bios
 }
+
+# vim: ft=sh syn=sh et
