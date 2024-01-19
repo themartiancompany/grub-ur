@@ -365,109 +365,176 @@ _build_grub-efi() {
 }
 
 _build_grub-emu() {
-  echo "Copy the source for building the emu part..."
-  cp -r "${srcdir}/grub/" "${srcdir}/grub-emu/"
-  cd "${srcdir}/grub-emu/"
+  echo \
+    "Copy the source for building the emu part..."
+  cp \
+    -r \
+    "${srcdir}/grub/" \
+    "${srcdir}/grub-emu/"
+  cd \
+    "${srcdir}/grub-emu/"
+  echo \
+    "Unset all compiler FLAGS for emu build..."
+  unset \
+    CFLAGS \
+    CPPFLAGS \
+    CXXFLAGS \
+    LDFLAGS \
+    MAKEFLAGS
   
-  echo "Unset all compiler FLAGS for emu build..."
-  unset CFLAGS
-  unset CPPFLAGS
-  unset CXXFLAGS
-  unset LDFLAGS
-  unset MAKEFLAGS
-  
-  echo "Run ./configure for emu build..."
+  echo \
+    "Run ./configure for emu build..."
   ./configure \
-  	--with-platform="emu" \
-  	--target="${_EMU_ARCH}" \
-  	--enable-grub-emu-usb=no \
-  	--enable-grub-emu-sdl=no \
-  	--disable-grub-emu-pci \
-  	"${_configure_options[@]}"
-  
-  echo "Run make for emu build..."
+    --with-platform="emu" \
+    --target="${_EMU_ARCH}" \
+    --enable-grub-emu-usb=no \
+    --enable-grub-emu-sdl=no \
+    --disable-grub-emu-pci \
+    "${_configure_options[@]}"
+  echo \
+    "Run make for emu build..."
   make
 }
 
 build() {
-	cd "${srcdir}/grub/"
-
-	echo "Build grub bios stuff..."
-	_build_grub-common_and_bios
-
-	echo "Build grub ${_EFI_ARCH} efi stuff..."
-	_build_grub-efi
-
-	if [[ "${CARCH}" == "x86_64" ]] && [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
-		echo "Build grub i386 efi stuff..."
-		_EFI_ARCH="i386" _build_grub-efi
-	fi
-
-	if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
-		echo "Build grub emu stuff..."
-		_build_grub-emu
-	fi
+  cd \
+    "${srcdir}/grub/"
+  
+  echo \
+    "Build grub bios stuff..."
+  _build_grub-common_and_bios
+  
+  echo \
+    "Build grub ${_EFI_ARCH} efi stuff..."
+  _build_grub-efi
+  
+  if \
+    [[ "${CARCH}" == "x86_64" ]] && \
+    [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
+  	echo "Build grub i386 efi stuff..."
+  	_EFI_ARCH="i386" _build_grub-efi
+  fi
+  
+  if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
+    echo \
+      "Build grub emu stuff..."
+    _build_grub-emu
+  fi
 }
 
 _package_grub-common_and_bios() {
-	cd "${srcdir}/grub-bios/"
-
-	echo "Run make install for bios build..."
-	make DESTDIR="${pkgdir}/" bashcompletiondir="/usr/share/bash-completion/completions" install
-
-	echo "Remove gdb debugging related files for bios build..."
-	rm -f "${pkgdir}/usr/lib/grub/i386-pc"/*.module || true
-	rm -f "${pkgdir}/usr/lib/grub/i386-pc"/*.image || true
-	rm -f "${pkgdir}/usr/lib/grub/i386-pc"/{kernel.exec,gdb_grub,gmodule.pl} || true
-
-	echo "Install /etc/default/grub (used by grub-mkconfig)..."
-	install -D -m0644 "${srcdir}/grub.default" "${pkgdir}/etc/default/grub"
+  cd \
+    "${srcdir}/grub-bios/"
+  
+  echo \
+    "Run make install for bios build..."
+  make \
+    DESTDIR="${pkgdir}" \
+    bashcompletiondir="/usr/share/bash-completion/completions" \
+    install
+  
+  echo \
+    "Remove gdb debugging related files for bios build..."
+  rm \
+    -f \
+    "${pkgdir}/usr/lib/grub/i386-pc"/*.module || \
+    true
+  rm \
+    -f \
+      "${pkgdir}/usr/lib/grub/i386-pc"/*.image || \
+      true
+  rm \
+    -f \
+      "${pkgdir}/usr/lib/grub/i386-pc"/{kernel.exec,gdb_grub,gmodule.pl} || \
+    true
+  
+  echo \
+    "Install /etc/default/grub (used by grub-mkconfig)..."
+  install \
+    -D \
+    -m0644 \
+    "${srcdir}/grub.default" \
+    "${pkgdir}/etc/default/grub"
 }
 
 _package_grub-efi() {
-	cd "${srcdir}/grub-efi-${_EFI_ARCH}/"
-
-	echo "Run make install for ${_EFI_ARCH} efi build..."
-	make DESTDIR="${pkgdir}/" bashcompletiondir="/usr/share/bash-completion/completions" install
-
-	echo "Remove gdb debugging related files for ${_EFI_ARCH} efi build..."
-	rm -f "${pkgdir}/usr/lib/grub/${_EFI_ARCH}-efi"/*.module || true
-	rm -f "${pkgdir}/usr/lib/grub/${_EFI_ARCH}-efi"/*.image || true
-	rm -f "${pkgdir}/usr/lib/grub/${_EFI_ARCH}-efi"/{kernel.exec,gdb_grub,gmodule.pl} || true
-
-	sed -e "s/%PKGVER%/${epoch}:${pkgver}-${pkgrel}/" < "${srcdir}/sbat.csv" > "${pkgdir}/usr/share/grub/sbat.csv"
+  cd \
+    "${srcdir}/grub-efi-${_EFI_ARCH}/"
+  echo \
+    "Run make install for ${_EFI_ARCH} efi build..."
+  make \
+    DESTDIR="${pkgdir}/" \
+    bashcompletiondir="/usr/share/bash-completion/completions" \
+    install
+  
+  echo \
+    "Remove gdb debugging related files for ${_EFI_ARCH} efi build..."
+  rm \
+    -f \
+      "${pkgdir}/usr/lib/grub/${_EFI_ARCH}-efi"/*.module || \
+    true
+  rm \
+    -f \
+      "${pkgdir}/usr/lib/grub/${_EFI_ARCH}-efi"/*.image || \
+    true
+  rm \
+    -f "${pkgdir}/usr/lib/grub/${_EFI_ARCH}-efi"/{kernel.exec,gdb_grub,gmodule.pl} || \
+    true
+  
+  sed \
+    -e \
+      "s/%PKGVER%/${epoch}:${pkgver}-${pkgrel}/" < \
+        "${srcdir}/sbat.csv" > \
+          "${pkgdir}/usr/share/grub/sbat.csv"
 }
 
 _package_grub-emu() {
-	cd "${srcdir}/grub-emu/"
+  cd \
+    "${srcdir}/grub-emu"
 
-	echo "Run make install for emu build..."
-	make DESTDIR="${pkgdir}/" bashcompletiondir="/usr/share/bash-completion/completions" install
-
-	echo "Remove gdb debugging related files for emu build..."
-	rm -f "${pkgdir}/usr/lib/grub/${_EMU_ARCH}-emu"/*.module || true
-	rm -f "${pkgdir}/usr/lib/grub/${_EMU_ARCH}-emu"/*.image || true
-	rm -f "${pkgdir}/usr/lib/grub/${_EMU_ARCH}-emu"/{kernel.exec,gdb_grub,gmodule.pl} || true
+  echo \
+    "Run make install for emu build..."
+  make \
+    DESTDIR="${pkgdir}" \
+    bashcompletiondir="/usr/share/bash-completion/completions" \
+    install
+  echo \
+    "Remove gdb debugging related files for emu build..."
+  rm \
+    -f \
+      "${pkgdir}/usr/lib/grub/${_EMU_ARCH}-emu"/*.module || \
+    true
+  rm \
+    -f \
+      "${pkgdir}/usr/lib/grub/${_EMU_ARCH}-emu"/*.image || \
+    true
+  rm \
+    -f "${pkgdir}/usr/lib/grub/${_EMU_ARCH}-emu"/{kernel.exec,gdb_grub,gmodule.pl} || \
+    true
 }
 
 package() {
-	cd "${srcdir}/grub/"
-
-	echo "Package grub ${_EFI_ARCH} efi stuff..."
-	_package_grub-efi
-
-	if [[ "${CARCH}" == "x86_64" ]] && [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
-		echo "Package grub i386 efi stuff..."
-		_EFI_ARCH="i386" _package_grub-efi
-	fi
-
-	if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
-		echo "Package grub emu stuff..."
-		_package_grub-emu
-	fi
-
-	echo "Package grub bios stuff..."
-	_package_grub-common_and_bios
+  cd \
+    "${srcdir}/grub/"
+  echo \
+    "Package grub ${_EFI_ARCH} efi stuff..."
+  _package_grub-efi
+  if \
+    [[ "${CARCH}" == "x86_64" ]] && \
+    [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
+    echo \
+      "Package grub i386 efi stuff..."
+  _EFI_ARCH="i386" \
+    _package_grub-efi
+  fi
+  if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
+    echo \
+      "Package grub emu stuff..."
+    _package_grub-emu
+  fi
+  echo \
+    "Package grub bios stuff..."
+  _package_grub-common_and_bios
 }
 
 # vim: ft=sh syn=sh et
