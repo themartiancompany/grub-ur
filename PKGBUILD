@@ -18,6 +18,8 @@ _GRUB_EMU_BUILD="0"
   _EFI_ARCH='x86_64'
 [[ "${CARCH}" == 'i686' ]] && \
   _EFI_ARCH='i386'
+[[ "${CARCH}" == 'arm' ]] && \
+  _EFI_ARCH='arm-linux-gnueabihf'
 [[ "${CARCH}" == 'x86_64' ]] && \
   _EMU_ARCH='x86_64'
 [[ "${CARCH}" == 'i686' ]] && \
@@ -257,7 +259,6 @@ prepare() {
   echo \
     "Pull in latest language files..."
   ./linguas.sh
-  
   echo \
     "Avoid problem with unifont during compile of grub..."
   # http://savannah.gnu.org/bugs/?40330 and https://bugs.archlinux.org/task/37847
@@ -265,13 +266,11 @@ prepare() {
     -cd \
       "${srcdir}/unifont-${_unifont_ver}.bdf.gz" > \
     "unifont.bdf"
-  
   echo \
     "Run bootstrap..."
   ./bootstrap \
     --gnulib-srcdir="${srcdir}/gnulib/" \
     --no-git
-  
   echo \
     "Make translations reproducible..."
   sed \
@@ -288,7 +287,6 @@ _build_grub-common_and_bios() {
   else
     _EFIEMU="--disable-efiemu"
   fi
-  
   echo \
     "Copy the source for building the bios part..."
   cp \
@@ -297,7 +295,6 @@ _build_grub-common_and_bios() {
     "${srcdir}/grub-bios/"
   cd \
     "${srcdir}/grub-bios/"
-  
   echo \
     "Unset all compiler FLAGS for bios build..."
   unset \
@@ -306,7 +303,6 @@ _build_grub-common_and_bios() {
     CXXFLAGS \
     LDFLAGS \
     MAKEFLAGS
-  
   echo \
     "Run ./configure for bios build..."
   ./configure \
@@ -341,7 +337,6 @@ _build_grub-efi() {
       "${srcdir}/grub-efi-${_EFI_ARCH}/"
   cd \
     "${srcdir}/grub-efi-${_EFI_ARCH}/"
-  
   echo \
     "Unset all compiler FLAGS for ${_EFI_ARCH} efi build..."
   unset \
@@ -350,7 +345,6 @@ _build_grub-efi() {
     CXXFLAGS \
     LDFLAGS \
     MAKEFLAGS
-  
   echo \
     "Run ./configure for ${_EFI_ARCH} efi build..."
   ./configure \
@@ -399,11 +393,10 @@ _build_grub-emu() {
 build() {
   cd \
     "${srcdir}/grub/"
-  
-  echo \
-    "Build grub bios stuff..."
-  _build_grub-common_and_bios
-  
+  [[ "${CARCH}" != 'arm' ]] && \
+    echo \
+      "Build grub bios stuff..." && \
+    _build_grub-common_and_bios
   echo \
     "Build grub ${_EFI_ARCH} efi stuff..."
   _build_grub-efi
@@ -425,14 +418,12 @@ build() {
 _package_grub-common_and_bios() {
   cd \
     "${srcdir}/grub-bios/"
-  
   echo \
     "Run make install for bios build..."
   make \
     DESTDIR="${pkgdir}" \
     bashcompletiondir="/usr/share/bash-completion/completions" \
     install
-  
   echo \
     "Remove gdb debugging related files for bios build..."
   rm \
@@ -524,8 +515,8 @@ package() {
     [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
     echo \
       "Package grub i386 efi stuff..."
-  _EFI_ARCH="i386" \
-    _package_grub-efi
+    _EFI_ARCH="i386" \
+      _package_grub-efi
   fi
   if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
     echo \
