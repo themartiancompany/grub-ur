@@ -24,7 +24,7 @@ pkgbase = grub
 	makedepends = texinfo
 	makedepends = ttf-dejavu
 	makedepends = xz
-	makedepends = gcc-11-gnueabihf-compat
+	makedepends = clang
 	depends = device-mapper
 	depends = gettext
 	depends = sh
@@ -40,16 +40,16 @@ pkgbase = grub
 	provides = grub-common=2.12
 	provides = grub-bios=2.12
 	provides = grub-emu=2.12
-	provides = grub-efi-arm-linux-gnueabihf
+	provides = grub-efi-arm
 	conflicts = grub-common
 	conflicts = grub-bios
 	conflicts = grub-emu
-	conflicts = grub-efi-arm-linux-gnueabihf
+	conflicts = grub-efi-arm
 	conflicts = grub-legacy
 	replaces = grub-common
 	replaces = grub-bios
 	replaces = grub-emu
-	replaces = grub-efi-arm-linux-gnueabihf
+	replaces = grub-efi-arm
 	options = !makeflags
 	backup = etc/default/grub
 	backup = etc/grub.d/40_custom

@@ -19,7 +19,9 @@ _GRUB_EMU_BUILD="0"
 [[ "${CARCH}" == 'i686' ]] && \
   _EFI_ARCH='i386'
 [[ "${CARCH}" == 'arm' ]] && \
-  _EFI_ARCH='arm-linux-gnueabihf'
+  _EFI_ARCH='arm'
+  # _EFI_ARCH='arm-linux-androideabi'
+  # _EFI_ARCH='arm-linux-gnueabihf'
 [[ "${CARCH}" == 'x86_64' ]] && \
   _EMU_ARCH='x86_64'
 [[ "${CARCH}" == 'i686' ]] && \
@@ -90,7 +92,7 @@ makedepends=(
 )
 [[ "${CARCH}" == 'arm' ]] && \
   makedepends+=(
-    gcc-11-gnueabihf-compat
+    clang
   )
 depends=(
   'device-mapper'
@@ -399,7 +401,10 @@ build() {
   [[ "${CARCH}" != 'arm' ]] && \
     echo \
       "Build grub bios stuff..." && \
-    _build_grub-common_and_bios
+    _build_grub-bios
+  echo \
+     "Build grub common..."
+  _build_grub-bios
   echo \
     "Build grub ${_EFI_ARCH} efi stuff..."
   _build_grub-efi
@@ -418,7 +423,7 @@ build() {
   fi
 }
 
-_package_grub-common_and_bios() {
+_package_grub-bios() {
   cd \
     "${srcdir}/grub-bios/"
   echo \
@@ -441,7 +446,9 @@ _package_grub-common_and_bios() {
     -f \
       "${pkgdir}/usr/lib/grub/i386-pc"/{kernel.exec,gdb_grub,gmodule.pl} || \
     true
-  
+}
+
+_package_grub-common() {
   echo \
     "Install /etc/default/grub (used by grub-mkconfig)..."
   install \
@@ -526,9 +533,11 @@ package() {
       "Package grub emu stuff..."
     _package_grub-emu
   fi
-  echo \
-    "Package grub bios stuff..."
-  _package_grub-common_and_bios
+  [[ "${CARCH}" != 'arm' ]] && \
+    echo \
+      "Package grub bios stuff..." && \
+    _package_grub-bios
+  _package_grub-common
 }
 
 # vim: ft=sh syn=sh et
