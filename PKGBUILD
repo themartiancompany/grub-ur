@@ -74,26 +74,29 @@ provides=(
   "grub-emu=${pkgver}"
   "grub-efi-${_EFI_ARCH}"
 )
-
 makedepends=(
-  'git'
-  'rsync'
-  'xz'
-  'freetype2'
-  'ttf-dejavu'
-  'python'
   'autogen'
-  'texinfo'
-  'help2man'
-  'gettext'
   'device-mapper'
+  'gettext'
+  'git'
+  'help2man'
+  'freetype2'
   'fuse3'
+  'python'
+  'rsync'
+  'texinfo'
+  'ttf-dejavu'
+  'xz'
 )
+[[ "${CARCH}" == 'arm' ]] && \
+  makedepends+=(
+    gcc-11-gnueabihf-compat
+  )
 depends=(
+  'device-mapper'
+  'gettext'
   'sh'
   'xz'
-  'gettext'
-  'device-mapper'
 )
 optdepends=(
   'freetype2: For grub-mkfont usage'
@@ -104,8 +107,8 @@ optdepends=(
   'libisoburn: Provides xorriso for generating grub rescue iso using grub-mkrescue'
   'os-prober: To detect other OSes when generating grub.cfg in BIOS systems'
   'mtools: For grub-mkrescue FAT FS support')
-
-if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
+if \
+  [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
   makedepends+=(
     'libusbx'
     'sdl'
@@ -515,7 +518,7 @@ package() {
     [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
     echo \
       "Package grub i386 efi stuff..."
-    _EFI_ARCH="i386" \
+      _EFI_ARCH="i386" \
       _package_grub-efi
   fi
   if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
