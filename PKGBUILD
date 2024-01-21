@@ -401,10 +401,7 @@ build() {
   [[ "${CARCH}" != 'arm' ]] && \
     echo \
       "Build grub bios stuff..." && \
-    _build_grub-bios
-  echo \
-     "Build grub common..."
-  _build_grub-bios
+    _build_grub-common_and_bios
   echo \
     "Build grub ${_EFI_ARCH} efi stuff..."
   _build_grub-efi
