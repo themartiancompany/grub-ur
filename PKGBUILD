@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0
 #
-# Maintainer : Christian Hesse <mail@eworm.de>
-# Maintainer : Tobias Powalowski <tpowa@archlinux.org>
+# Maintainer:  Pellegrino Prevete (dvorak) <pellegrinoprevete@gmail.com>
+# Maintainer:  Truocolo <truocolo@aol.com>
+# Maintainer:  Christian Hesse <mail@eworm.de>
+# Maintainer:  Tobias Powalowski <tpowa@archlinux.org>
 # Contributor: Ronald van Haren <ronald.archlinux.org>
 # Contributor: Keshav Amburay <(the ddoott ridikulus ddoott rat) (aatt) (gemmaeiil) (ddoott) (ccoomm)>
-# Contributor: Pellegrino Prevete (dvorak) <pellegrinoprevete@gmail.com>
-# Contributor: Truocolo <truocolo@aol.com>
 
 ## "1" to enable IA32-EFI build in Arch x86_64
 #"0" to disable
@@ -60,22 +60,29 @@ options=(
 conflicts=(
   'grub-common'
   'grub-bios'
-  'grub-emu'
   "grub-efi-${_EFI_ARCH}"
   'grub-legacy'
 )
 replaces=(
   "grub-common"
   'grub-bios'
-  'grub-emu'
   "grub-efi-${_EFI_ARCH}"
 )
 provides=(
   "grub-common=${pkgver}"
   "grub-bios=${pkgver}"
-  "grub-emu=${pkgver}"
   "grub-efi-${_EFI_ARCH}"
 )
+[[ "${_GRUB_EMU_BUILD}" == "1" ]] && \
+  conflicts+=(
+    'grub-emu'
+  ) && \
+  provides+=(
+    'grub-emu'
+  ) && \
+  replaces+=(
+    'grub-emu'
+  )
 makedepends=(
   'autogen'
   'device-mapper'
@@ -109,18 +116,15 @@ optdepends=(
   'libisoburn: Provides xorriso for generating grub rescue iso using grub-mkrescue'
   'os-prober: To detect other OSes when generating grub.cfg in BIOS systems'
   'mtools: For grub-mkrescue FAT FS support')
-if \
-  [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
+[[ "${_GRUB_EMU_BUILD}" == "1" ]] && \
   makedepends+=(
-    'libusbx'
+    'libusb'
     'sdl'
-  )
+  ) && \
   optdepends+=(
-    'libusbx: For grub-emu USB support'
+    'libusb: For grub-emu USB support'
     'sdl: For grub-emu SDL support'
   )
-fi
-
 validpgpkeys=(
   # Vladimir 'phcoder' Serbinenko <phcoder@gmail.com>
   'E53D497F3FA42AD8C9B4D1E835A93B74E82E4209'
@@ -409,10 +413,9 @@ build() {
   if \
     [[ "${CARCH}" == "x86_64" ]] && \
     [[ "${_IA32_EFI_IN_ARCH_X64}" == "1" ]]; then
-  	echo "Build grub i386 efi stuff..."
-  	_EFI_ARCH="i386" _build_grub-efi
+      echo "Build grub i386 efi stuff..."
+      _EFI_ARCH="i386" _build_grub-efi
   fi
-  
   if [[ "${_GRUB_EMU_BUILD}" == "1" ]]; then
     echo \
       "Build grub emu stuff..."
