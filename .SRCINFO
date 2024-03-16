@@ -1,7 +1,7 @@
 pkgbase = grub
 	pkgdesc = GNU GRand Unified Bootloader (2)
 	pkgver = 2.12
-	pkgrel = 1
+	pkgrel = 2
 	epoch = 2
 	url = https://www.gnu.org/software/grub/
 	install = grub.install
@@ -47,7 +47,7 @@ pkgbase = grub
 	options = !makeflags
 	backup = etc/default/grub
 	backup = etc/grub.d/40_custom
-	source = git+https://git.savannah.gnu.org/git/grub.git#tag=03e6ea18f6f834f177cad017279bedbb0a3de594?signed
+	source = git+https://git.savannah.gnu.org/git/grub.git#tag=grub-2.12?signed
 	source = git+https://git.savannah.gnu.org/git/gnulib.git
 	source = https://ftp.gnu.org/gnu/unifont/unifont-15.1.05/unifont-15.1.05.bdf.gz
 	source = https://ftp.gnu.org/gnu/unifont/unifont-15.1.05/unifont-15.1.05.bdf.gz.sig
