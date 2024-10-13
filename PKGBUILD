@@ -49,8 +49,9 @@ pkgdesc='GNU GRand Unified Bootloader (2)'
 epoch=2
 _commit='03e6ea18f6f834f177cad017279bedbb0a3de594' # git rev-parse grub-${_pkgver}
 # _gnulib_commit="22711ba820cf78dd8f8eea04f6073fcec7ab987b"
-_gnulib_commit="47871cf9e56474706cb6db44742d54b1755994f8"
-_pkgver=2.06 # 2.12 doesn't build
+# _gnulib_commit="47871cf9e56474706cb6db44742d54b1755994f8"
+_gnulib_commit="9f48fb992a3d7e96610c4ce8be969cff2d61a01b"
+_pkgver=2.12 # 2.12 doesn't build
 _unifont_ver='16.0.01'
 pkgver=${_pkgver/-/}
 pkgrel=4
@@ -160,6 +161,7 @@ _local="file://${HOME}/${_pkg}"
 _local_gnulib="file://${HOME}/gnulib"
 _tag_name="commit"
 _tag="${_commit}"
+_short_tag="${_commit::-33}"
 source=()
 sha256sums=()
 b2sums=()
@@ -168,23 +170,22 @@ if [[ "${_offline}" == true ]]; then
   _gnulib="${_local_gnulib}"
 fi
 if [[ "${_git}" == "true" ]]; then
-  _src="${_pkg}-${pkgver}::git+${_url}#${_tag_name}=${_tag}?signed"
-  _gnulib="gnulib-${_gnulib_commit}::git+${_gnulib}"
+  _src="${_pkg}-${_short_tag}::git+${_url}#${_tag_name}=${_tag}?signed"
+  _gnulib="gnulib-${_gnulib_commit::-33}::git+${_gnulib}"
   _sum="SKIP"
   _bsum='a6cec7271c3ea54a99f02ee6bc0a5825c8be657af68ba9a32b39a5fe8bcb571fb1ba39210426f6bf6a48d913e6e00df37dc2123ea1b39330f4c47bd9dbac9ae3'
   _gnulib_sum="SKIP"
   _gnulib_bsum="SKIP"
 elif [[ "${_git}" == "false" ]]; then
-  _src_url="${_savannah}/cgit/${_pkg}.git/snapshot/${_pkg}-${pkgver}.tar.gz"
-  _src="${_pkg}-${pkgver}.tar.gz::${_src_url}"
+  # _src_url="${_savannah}/cgit/${_pkg}.git/snapshot/${_pkg}-${pkgver}.tar.gz"
+  _src_url="${_savannah}/gitweb/?p=grub.git;a=snapshot;h=${_tag};sf=tgz"
+  _src="${_pkg}-${_short_tag}.tar.gz::${_src_url}"
   _gnulib_url="${_savannah}/gitweb/?p=gnulib.git;a=snapshot;h=${_gnulib_commit};sf=tgz"
   _gnulib="gnulib-${_gnulib_commit}.tar.gz::${_gnulib_url}"
-  _sum="660eaa2355a4045d8d0cdb5765169d1cad9912ec07873b86c9c6d55dbaa9dfca"
-  _bsum="b9b31ce371fc04a1e0d266ce00baab94ba32ce272a80433a8c1135fdb01378f04943c78d30b00991bce7f93c93f201496b72824746eb64ff2e7067d236cae985"
-  _gnulib_sum="9d6d4ba8ca4701348261907eea7a6953da28824ac2beb99ecbf778086050e4b6"
-  # _gnulib_sum="f3e6628b392b8a6829cfa4837db7cc7d3f9f1984a8ea4e653f9c0ce000a8eb2c"
-  # _gnulib_bsum="a4d1cded4ed90736aff031bc6037f7affc0ec8ab5f91e029fc1b4481349deddebd3cdb27a2a36ca987789424befe25b7f6386ada128dfeb1ccdf16f79222293e"
-  _gnulib_bsum="e3c765f2d31e4a694c70c31b6d9c88b049d647c732cdef503d6b9049da71a760fc94618d5d17f874dd3bfb4e4e5b4c0a49aae2698d660609726010d861a4f8fd"
+  _sum="c41dc3a07ec7d35419e8355de91c4307be6e94aa860f133aaf868926dbe5f7f2"
+  _bsum="9ff75b308a9b3cc083e49a96ff9096ffac9d7f5a9ea8de0f95596d9674b51cda8617b71d31ec564f4cd92bbce09940c5dd8a2890f602f9296b83ad9cb9dd4309"
+  _gnulib_sum="81464773c4f5610a570fa1f48195a30328cbd04ad35368bde5bfde631c875204"
+  _gnulib_bsum="c935963205a54073f13a32a66cbbb05c6efc83f235f4885f6ba3afd237edc74f7479b62f2fa500f2a41465983628a9494fe1111d7e98c667370b194eac58943e"
 fi
 source+=(
   "${_src}"
@@ -232,7 +233,7 @@ if [[ "${CARCH}" == 'x86_64' ]]; then
     # -Wno-implicit-function-declaration
     # -Wno-int-conversion
     # -Wno-declaration-missing-parameter-type
-    # -Wno-nested-externs
+    -Wno-nested-externs
     # -Wno-attributes
     # -Wno-return-type
   )
@@ -260,7 +261,7 @@ _configure_options=(
   --sysconfdir="/etc"
   --program-prefix=""
   --with-bootdir="/boot"
-  --"with-${_pkg}dir"="${srcdir}/${_pkg}-${pkgver}"
+  --"with-${_pkg}dir"="${srcdir}/${_pkg}-${_short_tag}"
   --disable-silent-rules
   --disable-werror
 )
@@ -269,7 +270,7 @@ _git_prepare() {
   local \
     _c
   cd \
-    "${srcdir}/${_pkg}-${pkgver}"
+    "${srcdir}/${_pkg}-${_short_tag}"
   echo \
     "Apply backports..."
   for _c in \
@@ -305,7 +306,7 @@ prepare() {
   local \
     _gnulib_dir
   cd \
-    "${srcdir}/${_pkg}-${pkgver}"
+    "${srcdir}/${_pkg}-${_short_tag}"
   if [[ "${_git}" == "true" ]]; then
     _git_prepare
   fi
@@ -395,10 +396,10 @@ _build_grub-common_and_bios() {
     "Copy the source for building the bios part..."
   cp \
     -r \
-    "${srcdir}/${_pkg}-${pkgver}/" \
+    "${srcdir}/${_pkg}-${_short_tag}/" \
     "${srcdir}/${_pkg}-bios/"
   cd \
-    "${srcdir}/${_pkg}-bios/"
+    "${srcdir}/${_pkg}-bios"
   echo \
     "Unset all compiler FLAGS for bios build..."
   unset \
@@ -447,10 +448,10 @@ _build_grub-efi() {
     "Copy the source for building the ${_EFI_ARCH} efi part..."
   cp \
     -r \
-      "${srcdir}/${_pkg}-${pkgver}/" \
+      "${srcdir}/${_pkg}-${_short_tag}/" \
       "${srcdir}/${_pkg}-efi-${_EFI_ARCH}/"
   cd \
-    "${srcdir}/${_pkg}-efi-${_EFI_ARCH}/"
+    "${srcdir}/${_pkg}-efi-${_EFI_ARCH}"
   echo \
     "Unset all compiler FLAGS for ${_EFI_ARCH} efi build..."
   unset \
@@ -489,10 +490,10 @@ _build_grub-emu() {
     "Copy the source for building the emu part..."
   cp \
     -r \
-    "${srcdir}/${_pkg}/" \
+    "${srcdir}/${_pkg}-${_short_tag}/" \
     "${srcdir}/${_pkg}-emu/"
   cd \
-    "${srcdir}/${_pkg}-emu/"
+    "${srcdir}/${_pkg}-emu"
   echo \
     "Unset all compiler FLAGS for emu build..."
   unset \
@@ -518,7 +519,7 @@ _build_grub-emu() {
 
 build() {
   cd \
-    "${srcdir}/${_pkg}-${pkgver}/"
+    "${srcdir}/${_pkg}-${_short_tag}"
   [[ "${CARCH}" != 'arm' ]] && \
     echo \
       "Build ${_pkg} bios stuff..." && \
@@ -549,7 +550,7 @@ _package_grub-bios() {
     bashcompletiondir="/usr/share/bash-completion/completions"
   )
   cd \
-    "${srcdir}/${_pkg}-bios/"
+    "${srcdir}/${_pkg}-bios"
   echo \
     "Run make install for bios build..."
   CC="${_cc}" \
@@ -592,7 +593,7 @@ _package_grub-efi() {
     bashcompletiondir="/usr/share/bash-completion/completions"
   )
   cd \
-    "${srcdir}/${_pkg}-efi-${_EFI_ARCH}/"
+    "${srcdir}/${_pkg}-efi-${_EFI_ARCH}"
   echo \
     "Run make install for ${_EFI_ARCH} efi build..."
   CC="${_cc}" \
@@ -655,7 +656,7 @@ _package_grub-emu() {
 
 package() {
   cd \
-    "${srcdir}/${_pkg}-${pkgver}/"
+    "${srcdir}/${_pkg}-${_short_tag}"
   echo \
     "Package ${_pkg} ${_EFI_ARCH} efi stuff..."
   "_package_${_pkg}-efi"
