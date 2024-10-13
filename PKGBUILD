@@ -113,7 +113,8 @@ makedepends=(
   'ttf-dejavu'
   'xz'
 )
-[[ "${CARCH}" == 'arm' ]] && \
+[[ "${CARCH}" == 'arm' || \
+   "${CARCH}" == "x86_64" ]] && \
   makedepends+=(
     clang
   )
@@ -221,6 +222,8 @@ _backports=(
 _reverts=(
 )
 
+_cc="gcc"
+
 if [[ "${CARCH}" == 'x86_64' ]]; then
   _cflags+=(
     -Wno-implicit-function-declaration
@@ -230,8 +233,12 @@ if [[ "${CARCH}" == 'x86_64' ]]; then
     -Wno-attributes
     -Wno-return-type
   )
+  _cc="clang"
 fi
 
+if [[ "${CARCH}" == 'x86_64' ]]; then
+  _cc="clang"
+fi
 _configure_options=(
   PACKAGE_VERSION="${epoch}:${pkgver}-${pkgrel}"
   FREETYPE="pkg-config freetype2"
@@ -398,6 +405,7 @@ _build_grub-common_and_bios() {
     "Run ./configure for bios build..."
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
+  CC="${_cc}" \
   ./configure \
     "${_configure_opts[@]}"
   if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
@@ -413,6 +421,7 @@ _build_grub-common_and_bios() {
   
   echo \
     "Run make for bios build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   make
@@ -446,12 +455,14 @@ _build_grub-efi() {
     MAKEFLAGS
   echo \
     "Run ./configure for ${_EFI_ARCH} efi build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   echo \
     "Run make for ${_EFI_ARCH} efi build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   make
@@ -486,12 +497,14 @@ _build_grub-emu() {
     MAKEFLAGS
   echo \
     "Run ./configure for emu build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   echo \
     "Run make for emu build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   make
@@ -533,6 +546,7 @@ _package_grub-bios() {
     "${srcdir}/${_pkg}-bios/"
   echo \
     "Run make install for bios build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   make \
@@ -575,6 +589,7 @@ _package_grub-efi() {
     "${srcdir}/${_pkg}-efi-${_EFI_ARCH}/"
   echo \
     "Run make install for ${_EFI_ARCH} efi build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   make \
@@ -611,6 +626,7 @@ _package_grub-emu() {
     "${srcdir}/${_pkg}-emu"
   echo \
     "Run make install for emu build..."
+  CC="${_cc}" \
   CFLAGS="${_cflags[*]}" \
   CXXFLAGS="${_cflags[*]}" \
   make \
