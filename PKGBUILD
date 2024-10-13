@@ -48,8 +48,9 @@ pkgname="${_pkg}"
 pkgdesc='GNU GRand Unified Bootloader (2)'
 epoch=2
 _commit='03e6ea18f6f834f177cad017279bedbb0a3de594' # git rev-parse grub-${_pkgver}
-_gnulib_commit="22711ba820cf78dd8f8eea04f6073fcec7ab987b"
-_pkgver=2.12
+# _gnulib_commit="22711ba820cf78dd8f8eea04f6073fcec7ab987b"
+_gnulib_commit="47871cf9e56474706cb6db44742d54b1755994f8"
+_pkgver=2.06 # 2.12 doesn't build
 _unifont_ver='16.0.01'
 pkgver=${_pkgver/-/}
 pkgrel=4
@@ -178,10 +179,12 @@ elif [[ "${_git}" == "false" ]]; then
   _src="${_pkg}-${pkgver}.tar.gz::${_src_url}"
   _gnulib_url="${_savannah}/gitweb/?p=gnulib.git;a=snapshot;h=${_gnulib_commit};sf=tgz"
   _gnulib="gnulib-${_gnulib_commit}.tar.gz::${_gnulib_url}"
-  _sum="af4d58df3024988799225e94bc1cfaccdeaa9d5725b4ad5517f3b6cf2ee9ed78"
-  _bsum="be5d3209371fd206687742de988e0531897afb4a3e0643ba001f306a8fe7a02e3448341e2802f17090874338a319c7ede4d59e50a37a84152830204b18864366"
-  _gnulib_sum="f3e6628b392b8a6829cfa4837db7cc7d3f9f1984a8ea4e653f9c0ce000a8eb2c"
-  _gnulib_bsum="a4d1cded4ed90736aff031bc6037f7affc0ec8ab5f91e029fc1b4481349deddebd3cdb27a2a36ca987789424befe25b7f6386ada128dfeb1ccdf16f79222293e"
+  _sum="660eaa2355a4045d8d0cdb5765169d1cad9912ec07873b86c9c6d55dbaa9dfca"
+  _bsum="b9b31ce371fc04a1e0d266ce00baab94ba32ce272a80433a8c1135fdb01378f04943c78d30b00991bce7f93c93f201496b72824746eb64ff2e7067d236cae985"
+  _gnulib_sum="9d6d4ba8ca4701348261907eea7a6953da28824ac2beb99ecbf778086050e4b6"
+  # _gnulib_sum="f3e6628b392b8a6829cfa4837db7cc7d3f9f1984a8ea4e653f9c0ce000a8eb2c"
+  # _gnulib_bsum="a4d1cded4ed90736aff031bc6037f7affc0ec8ab5f91e029fc1b4481349deddebd3cdb27a2a36ca987789424befe25b7f6386ada128dfeb1ccdf16f79222293e"
+  _gnulib_bsum="e3c765f2d31e4a694c70c31b6d9c88b049d647c732cdef503d6b9049da71a760fc94618d5d17f874dd3bfb4e4e5b4c0a49aae2698d660609726010d861a4f8fd"
 fi
 source+=(
   "${_src}"
@@ -226,12 +229,12 @@ _cc="gcc"
 
 if [[ "${CARCH}" == 'x86_64' ]]; then
   _cflags+=(
-    -Wno-implicit-function-declaration
-    -Wno-int-conversion
-    -Wno-declaration-missing-parameter-type
-    -Wno-nested-externs
-    -Wno-attributes
-    -Wno-return-type
+    # -Wno-implicit-function-declaration
+    # -Wno-int-conversion
+    # -Wno-declaration-missing-parameter-type
+    # -Wno-nested-externs
+    # -Wno-attributes
+    # -Wno-return-type
   )
   _cc="clang"
 fi
@@ -357,9 +360,12 @@ prepare() {
   _gnulib_dir="${srcdir}/gnulib-${_gnulib_commit::-33}"
   echo \
     "Run bootstrap with GNULib dir '${_gnulib_dir}'..."
+  CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
+  CC="${_cc}" \
   ./bootstrap \
     --no-git \
-    --gnulib-srcdir="${_gnulib_dir}/"
+    --gnulib-srcdir="${_gnulib_dir}"
   echo \
     "Make translations reproducible..."
   sed \
