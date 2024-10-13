@@ -278,7 +278,7 @@ _git_prepare() {
 
 prepare() {
   local \
-    _c
+    _gnulib_dir
   cd \
     "${srcdir}/${_pkg}-${pkgver}"
   if [[ "${_git}" == "true" ]]; then
@@ -332,11 +332,12 @@ prepare() {
     -cd \
       "${srcdir}/unifont-${_unifont_ver}.bdf.gz" > \
     "unifont.bdf"
+  _gnulib_dir="${srcdir}/gnulib-${_gnulib_commit::-33}"
   echo \
-    "Run bootstrap..."
+    "Run bootstrap with GNULib dir '${_gnulib_dir}'..."
   ./bootstrap \
-    --gnulib-srcdir="${srcdir}/gnulib-${_gnulib_commit}/" \
-    --no-git
+    --no-git \
+    --gnulib-srcdir="${_gnulib_dir}/"
   echo \
     "Make translations reproducible..."
   sed \
