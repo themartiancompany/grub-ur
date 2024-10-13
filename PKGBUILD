@@ -35,7 +35,7 @@ fi
   _EMU_ARCH='arm-linux-gnueabihf'
 
 _offline="false"
-_git="true"
+_git="false"
 if [[ "${_os}" == "Android" ]]; then
   _git="false"
 fi
@@ -170,11 +170,13 @@ if [[ "${_git}" == "true" ]]; then
   _gnulib_bsum="SKIP"
 elif [[ "${_git}" == "false" ]]; then
   _src_url="${_savannah}/cgit/${_pkg}.git/snapshot/${_pkg}-${pkgver}.tar.gz"
-  _src="${pkgver}-${pkgver}.tar.gz::${_src_url}"
+  _src="${_pkg}-${pkgver}.tar.gz::${_src_url}"
   _gnulib_url="${_savannah}/gitweb/?p=gnulib.git;a=snapshot;h=${_gnulib_commit};sf=tgz"
   _gnulib="gnulib-${_gnulib_commit}.tar.gz::${_gnulib_url}"
-  _sum="ciao"
-  _gnulib_sum="ciao"
+  _sum="af4d58df3024988799225e94bc1cfaccdeaa9d5725b4ad5517f3b6cf2ee9ed78"
+  _bsum="be5d3209371fd206687742de988e0531897afb4a3e0643ba001f306a8fe7a02e3448341e2802f17090874338a319c7ede4d59e50a37a84152830204b18864366"
+  _gnulib_sum="f3e6628b392b8a6829cfa4837db7cc7d3f9f1984a8ea4e653f9c0ce000a8eb2c"
+  _gnulib_bsum="a4d1cded4ed90736aff031bc6037f7affc0ec8ab5f91e029fc1b4481349deddebd3cdb27a2a36ca987789424befe25b7f6386ada128dfeb1ccdf16f79222293e"
 fi
 source+=(
   "${_src}"
@@ -189,7 +191,7 @@ source+=(
 sha256sums+=(
   "${_sum}"
   "${_gnulib_sum}"
-  '88e00954b10528407e62e97ce6eaa88c847ebfd9a464cafde6bf55c7e4eeed54'
+  "230a0959aa50778b68239c88ad3c2d53abde58be0932b14a379a3869118aca33"
   'SKIP'
   '5dee6628c48eef79812bb9e86ee772068d85e7fcebbd2b2b8d1e19d24eda9dab'
   '8488aec30a93e8fe66c23ef8c23aefda39c38389530e9e73ba3fbcc8315d244d'
