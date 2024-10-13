@@ -48,10 +48,8 @@ pkgname="${_pkg}"
 pkgdesc='GNU GRand Unified Bootloader (2)'
 epoch=2
 _commit='03e6ea18f6f834f177cad017279bedbb0a3de594' # git rev-parse grub-${_pkgver}
-# _gnulib_commit="22711ba820cf78dd8f8eea04f6073fcec7ab987b"
-# _gnulib_commit="47871cf9e56474706cb6db44742d54b1755994f8"
 _gnulib_commit="9f48fb992a3d7e96610c4ce8be969cff2d61a01b"
-_pkgver=2.12 # 2.12 doesn't build
+_pkgver=2.12
 _unifont_ver='16.0.01'
 pkgver=${_pkgver/-/}
 pkgrel=4
@@ -177,7 +175,6 @@ if [[ "${_git}" == "true" ]]; then
   _gnulib_sum="SKIP"
   _gnulib_bsum="SKIP"
 elif [[ "${_git}" == "false" ]]; then
-  # _src_url="${_savannah}/cgit/${_pkg}.git/snapshot/${_pkg}-${pkgver}.tar.gz"
   _src_url="${_savannah}/gitweb/?p=grub.git;a=snapshot;h=${_tag};sf=tgz"
   _src="${_pkg}-${_short_tag}.tar.gz::${_src_url}"
   _gnulib_url="${_savannah}/gitweb/?p=gnulib.git;a=snapshot;h=${_gnulib_commit};sf=tgz"
