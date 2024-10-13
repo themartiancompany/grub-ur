@@ -7,6 +7,9 @@
 # Contributor: Ronald van Haren <ronald.archlinux.org>
 # Contributor: Keshav Amburay <(the ddoott ridikulus ddoott rat) (aatt) (gemmaeiil) (ddoott) (ccoomm)>
 
+_os="$( \
+  uname \
+    -o)"
 ## "1" to enable IA32-EFI build in Arch x86_64
 #"0" to disable
 _IA32_EFI_IN_ARCH_X64="1"
@@ -14,8 +17,10 @@ _IA32_EFI_IN_ARCH_X64="1"
 ## "1" to enable EMU build, "0" to disable
 _GRUB_EMU_BUILD="0"
 
-[[ "${CARCH}" == 'x86_64' ]] && \
+if [[ "${CARCH}" == 'x86_64' ]]; then
   _EFI_ARCH='x86_64'
+  _GRUB_EMU_BUILD="1"
+fi
 [[ "${CARCH}" == 'i686' ]] && \
   _EFI_ARCH='i386'
 [[ "${CARCH}" == 'arm' ]] && \
@@ -29,10 +34,16 @@ _GRUB_EMU_BUILD="0"
 [[ "${CARCH}" == 'arm' ]] && \
   _EMU_ARCH='arm-linux-gnueabihf'
 
+_offline="false"
+_git="true"
+if [[ "${_os}" == "Android" ]]; then
+  _git="false"
+fi
 pkgname='grub'
 pkgdesc='GNU GRand Unified Bootloader (2)'
 epoch=2
-_tag='03e6ea18f6f834f177cad017279bedbb0a3de594' # git rev-parse grub-${_pkgver}
+_commit='03e6ea18f6f834f177cad017279bedbb0a3de594' # git rev-parse grub-${_pkgver}
+_gnulib_commit="22711ba820cf78dd8f8eea04f6073fcec7ab987b"
 _pkgver=2.12
 _unifont_ver='15.1.04'
 pkgver=${_pkgver/-/}
@@ -133,15 +144,35 @@ validpgpkeys=(
   # Paul Hardy <unifoundry@unifoundry.com>
   '95D2E9AB8740D8046387FD151A09227B1F435A33'
 )
-_http="https://git.savannah.gnu.org/git"
-_url="${_http}/${pkgname}"
+_savannah="https://git.savannah.gnu.org"
+_http="${_savannah}/git"
+_url="${_http}/${pkgname}.git"
+_gnulib="${_http}/gnulib.git"
 _local="file://${HOME}/${pkgname}"
 _local_gnulib="file://${HOME}/gnulib"
+_tag_name="commit"
+_tag="${_commit}"
+source=()
+sha256sums=()
+if [[ "${_offline}" == true ]]; then
+  _url="${_local}"
+  _gnulib="${_local_gnulib}"
+fi
+if [[ "${_git}" == "true" ]]; then
+  _src="${pkgname}-${_tag}::git+${_url}#${_tag_name}=${_tag}?signed"
+  _gnulib="gnulib-${_gnulib_commit}::git+${_gnulib}"
+  _sum="SKIP"
+  _gnulib_sum="SKIP"
+elif [[ "${_git}" == "false" ]]; then
+  _src="${_savannah}/cgit/${pkgname}.git/snapshot/${pkgname}-${pkgver}.tar.gz"
+  _gnulib_url="${_savannah}/gitweb/?p=gnulib.git;a=snapshot;h=${_gnulib_commit};sf=tgz"
+  _gnulib="gnulib-${_gnulib_commit}.tar.gz::${_gnulib_url}"
+  _sum="ciao"
+  _gnulib_sum="ciao"
+fi
 source=(
-  # "git+${_url}.git#tag=${_tag}?signed"
-  "git+${_local}#tag=${_tag}?signed"
-  # "git+${_http}/gnulib.git"
-  "git+${_local_gnulib}"
+  "${_src}"
+  "${_gnulib}"
   "https://ftp.gnu.org/gnu/unifont/unifont-${_unifont_ver}/unifont-${_unifont_ver}.bdf.gz"{,.sig}
   '0001-00_header-add-GRUB_COLOR_-variables.patch'
   '0002-10_linux-detect-archlinux-initramfs.patch'
@@ -151,8 +182,8 @@ source=(
 )
 
 sha256sums=(
-  'SKIP'
-  'SKIP'
+  "${_sum}"
+  "${_gnulib_sum}"
   '88e00954b10528407e62e97ce6eaa88c847ebfd9a464cafde6bf55c7e4eeed54'
   'SKIP'
   '5dee6628c48eef79812bb9e86ee772068d85e7fcebbd2b2b8d1e19d24eda9dab'
@@ -191,13 +222,13 @@ _configure_options=(
   --disable-werror
 )
 
-prepare() {
-  cd \
-    "${srcdir}/grub/"
-  echo \
-    "Apply backports..."
+_git_prepare() {
   local \
     _c
+  cd \
+    "${srcdir}/${pkgname}/"
+  echo \
+    "Apply backports..."
   for _c in \
     "${_backports[@]}"; do
     git \
@@ -212,8 +243,7 @@ prepare() {
   done
   echo \
     "Apply reverts..."
-  local \
-    _c
+  _c=""
   for _c in \
     "${_reverts[@]}"; do
     git \
@@ -226,7 +256,16 @@ prepare() {
         -n \
 	"${_c}"
   done
+}
 
+prepare() {
+  local \
+    _c
+  cd \
+    "${srcdir}/${pkgname}/"
+  if [[ "${_git}" == "true" ]]; then
+    _git_prepare
+  fi
   echo \
     "Patch to enable GRUB_COLOR_* variables in grub-mkconfig..."
   # Based on 
@@ -289,6 +328,8 @@ prepare() {
 }
 
 _build_grub-common_and_bios() {
+  local \
+    _configure_opts=()
   echo \
     "Set ARCH dependent variables for bios build..."
   if [[ "${CARCH}" == 'x86_64' ]]; then
@@ -296,6 +337,13 @@ _build_grub-common_and_bios() {
   else
     _EFIEMU="--disable-efiemu"
   fi
+  _configure_opts=(
+    --with-platform="pc"
+    --target="i386"
+    "${_EFIEMU}"
+    --enable-boot-time
+    "${_configure_options[@]}"
+  )
   echo \
     "Copy the source for building the bios part..."
   cp \
@@ -315,12 +363,7 @@ _build_grub-common_and_bios() {
   echo \
     "Run ./configure for bios build..."
   ./configure \
-    --with-platform="pc" \
-    --target="i386" \
-    "${_EFIEMU}" \
-    --enable-boot-time \
-    "${_configure_options[@]}"
-  
+    "${_configure_opts[@]}"
   if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
     echo \
       "Make info pages reproducible..."
@@ -338,6 +381,15 @@ _build_grub-common_and_bios() {
 }
 
 _build_grub-efi() {
+  local \
+    _configure_opts=()
+  _configure_opts=(
+    --with-platform="efi"
+    --target="${_EFI_ARCH}"
+    --disable-efiemu
+    --enable-boot-time
+    "${_configure_options[@]}"
+  )
   echo \
     "Copy the source for building the ${_EFI_ARCH} efi part..."
   cp \
@@ -357,17 +409,23 @@ _build_grub-efi() {
   echo \
     "Run ./configure for ${_EFI_ARCH} efi build..."
   ./configure \
-    --with-platform="efi" \
-    --target="${_EFI_ARCH}" \
-    --disable-efiemu \
-    --enable-boot-time \
-    "${_configure_options[@]}"
+    "${_configure_opts[@]}"
   echo \
     "Run make for ${_EFI_ARCH} efi build..."
   make
 }
 
 _build_grub-emu() {
+  local \
+    _configure_opts=()
+  _configure_opts=(
+    --with-platform="emu"
+    --target="${_EMU_ARCH}"
+    --enable-grub-emu-usb=no
+    --enable-grub-emu-sdl=no
+    --disable-grub-emu-pci
+    "${_configure_options[@]}"
+  )
   echo \
     "Copy the source for building the emu part..."
   cp \
@@ -388,12 +446,7 @@ _build_grub-emu() {
   echo \
     "Run ./configure for emu build..."
   ./configure \
-    --with-platform="emu" \
-    --target="${_EMU_ARCH}" \
-    --enable-grub-emu-usb=no \
-    --enable-grub-emu-sdl=no \
-    --disable-grub-emu-pci \
-    "${_configure_options[@]}"
+    "${_configure_opts[@]}"
   echo \
     "Run make for emu build..."
   make
@@ -424,13 +477,18 @@ build() {
 }
 
 _package_grub-bios() {
+  local \
+    _make_opts=()
+  _make_opts=(
+    DESTDIR="${pkgdir}"
+    bashcompletiondir="/usr/share/bash-completion/completions"
+  )
   cd \
     "${srcdir}/grub-bios/"
   echo \
     "Run make install for bios build..."
   make \
-    DESTDIR="${pkgdir}" \
-    bashcompletiondir="/usr/share/bash-completion/completions" \
+    "${_make_opts[@]}" \
     install
   echo \
     "Remove gdb debugging related files for bios build..."
@@ -459,15 +517,19 @@ _package_grub-common() {
 }
 
 _package_grub-efi() {
+  local \
+    _make_opts=()
+  _make_opts=(
+    DESTDIR="${pkgdir}/"
+    bashcompletiondir="/usr/share/bash-completion/completions"
+  )
   cd \
     "${srcdir}/grub-efi-${_EFI_ARCH}/"
   echo \
     "Run make install for ${_EFI_ARCH} efi build..."
   make \
-    DESTDIR="${pkgdir}/" \
-    bashcompletiondir="/usr/share/bash-completion/completions" \
+    "${_make_opts[@]}" \
     install
-  
   echo \
     "Remove gdb debugging related files for ${_EFI_ARCH} efi build..."
   rm \
@@ -490,14 +552,19 @@ _package_grub-efi() {
 }
 
 _package_grub-emu() {
+  local \
+    _make_opts=()
+  _make_opts=(
+    DESTDIR="${pkgdir}"
+    bashcompletiondir="/usr/share/bash-completion/completions"
+  )
   cd \
     "${srcdir}/grub-emu"
 
   echo \
     "Run make install for emu build..."
   make \
-    DESTDIR="${pkgdir}" \
-    bashcompletiondir="/usr/share/bash-completion/completions" \
+    "${_make_opts[@]}" \
     install
   echo \
     "Remove gdb debugging related files for emu build..."
