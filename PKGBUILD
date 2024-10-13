@@ -220,6 +220,7 @@ _reverts=(
 if [[ "${CARCH}" == 'x86_64' ]]; then
   _cflags+=(
     -Wno-implicit-function-declaration
+    -Wno-int-conversion
   )
 fi
 
