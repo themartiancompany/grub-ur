@@ -17,6 +17,10 @@ _IA32_EFI_IN_ARCH_X64="1"
 ## "1" to enable EMU build, "0" to disable
 _GRUB_EMU_BUILD="0"
 
+if [[ ! -v "CARCH" ]]; then
+    CARCH="" 
+fi
+
 if [[ "${CARCH}" == 'x86_64' ]]; then
   _EFI_ARCH='x86_64'
   _GRUB_EMU_BUILD="1"
@@ -221,6 +225,10 @@ if [[ "${CARCH}" == 'x86_64' ]]; then
   _cflags+=(
     -Wno-implicit-function-declaration
     -Wno-int-conversion
+    -Wno-declaration-missing-parameter-type
+    -Wno-nested-externs
+    -Wno-attributes
+    -Wno-return-type
   )
 fi
 
@@ -389,6 +397,7 @@ _build_grub-common_and_bios() {
   echo \
     "Run ./configure for bios build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
@@ -404,6 +413,8 @@ _build_grub-common_and_bios() {
   
   echo \
     "Run make for bios build..."
+  CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   make
 }
 
@@ -436,10 +447,13 @@ _build_grub-efi() {
   echo \
     "Run ./configure for ${_EFI_ARCH} efi build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   echo \
     "Run make for ${_EFI_ARCH} efi build..."
+  CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   make
 }
 
@@ -473,11 +487,13 @@ _build_grub-emu() {
   echo \
     "Run ./configure for emu build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   echo \
     "Run make for emu build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   make
 }
 
@@ -518,6 +534,7 @@ _package_grub-bios() {
   echo \
     "Run make install for bios build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   make \
     "${_make_opts[@]}" \
     install
@@ -559,6 +576,7 @@ _package_grub-efi() {
   echo \
     "Run make install for ${_EFI_ARCH} efi build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   make \
     "${_make_opts[@]}" \
     install
@@ -594,6 +612,7 @@ _package_grub-emu() {
   echo \
     "Run make install for emu build..."
   CFLAGS="${_cflags[*]}" \
+  CXXFLAGS="${_cflags[*]}" \
   make \
     "${_make_opts[@]}" \
     install
