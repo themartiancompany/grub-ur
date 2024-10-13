@@ -217,6 +217,12 @@ _backports=(
 _reverts=(
 )
 
+if [[ "${CARCH}" == 'x86_64' ]]; then
+  _cflags+=(
+    -Wno-implicit-function-declaration
+  )
+fi
+
 _configure_options=(
   PACKAGE_VERSION="${epoch}:${pkgver}-${pkgrel}"
   FREETYPE="pkg-config freetype2"
@@ -381,6 +387,7 @@ _build_grub-common_and_bios() {
     MAKEFLAGS
   echo \
     "Run ./configure for bios build..."
+  CFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   if [ ! -z "${SOURCE_DATE_EPOCH}" ]; then
@@ -427,6 +434,7 @@ _build_grub-efi() {
     MAKEFLAGS
   echo \
     "Run ./configure for ${_EFI_ARCH} efi build..."
+  CFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   echo \
@@ -461,13 +469,14 @@ _build_grub-emu() {
     CXXFLAGS \
     LDFLAGS \
     MAKEFLAGS
-  
   echo \
     "Run ./configure for emu build..."
+  CFLAGS="${_cflags[*]}" \
   ./configure \
     "${_configure_opts[@]}"
   echo \
     "Run make for emu build..."
+  CFLAGS="${_cflags[*]}" \
   make
 }
 
@@ -507,6 +516,7 @@ _package_grub-bios() {
     "${srcdir}/${_pkg}-bios/"
   echo \
     "Run make install for bios build..."
+  CFLAGS="${_cflags[*]}" \
   make \
     "${_make_opts[@]}" \
     install
@@ -547,6 +557,7 @@ _package_grub-efi() {
     "${srcdir}/${_pkg}-efi-${_EFI_ARCH}/"
   echo \
     "Run make install for ${_EFI_ARCH} efi build..."
+  CFLAGS="${_cflags[*]}" \
   make \
     "${_make_opts[@]}" \
     install
@@ -563,7 +574,6 @@ _package_grub-efi() {
   rm \
     -f "${pkgdir}/usr/lib/${_pkg}/${_EFI_ARCH}-efi"/{kernel.exec,"gdb_${_pkg}",gmodule.pl} || \
     true
-  
   sed \
     -e \
       "s/%PKGVER%/${epoch}:${pkgver}-${pkgrel}/" < \
@@ -580,9 +590,9 @@ _package_grub-emu() {
   )
   cd \
     "${srcdir}/${_pkg}-emu"
-
   echo \
     "Run make install for emu build..."
+  CFLAGS="${_cflags[*]}" \
   make \
     "${_make_opts[@]}" \
     install
